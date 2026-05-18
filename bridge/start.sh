@@ -120,27 +120,24 @@ for i in $(seq 0 $((TUNNEL_COUNT-1))); do
   fi
 done
 
-# Register first healthy tunnel — retry up to 5 times, 10s apart
+# Register first tunnel that has a URL — no health check needed at startup.
+# Cloudflare tunnels take up to 2 min to warm up via public URL.
+# The watchdog handles failover if a tunnel turns out to be dead.
 echo ""
 echo "Registering active tunnel..."
 REGISTERED=false
-for attempt in $(seq 1 5); do
-  for i in $(seq 0 $((TUNNEL_COUNT-1))); do
-    URL=$(get_tunnel_url $i)
-    if [ -n "$URL" ] && check_url_alive "$URL"; then
-      set_active $i
-      if register_url "$URL"; then
-        echo "✓ Live: $URL"
-        REGISTERED=true
-        break 2
-      fi
+for i in $(seq 0 $((TUNNEL_COUNT-1))); do
+  URL=$(get_tunnel_url $i)
+  if [ -n "$URL" ]; then
+    set_active $i
+    if register_url "$URL"; then
+      echo "✓ Registered: $URL"
+      REGISTERED=true
+      break
     fi
-  done
-  $REGISTERED && break
-  echo "  Attempt $attempt/5 failed — retrying in 10s..."
-  sleep 10
+  fi
 done
-$REGISTERED || echo "⚠ No tunnel ready yet — watchdog will register when ready"
+$REGISTERED || echo "⚠ No tunnel URL yet — watchdog will register when ready"
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
