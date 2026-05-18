@@ -78,7 +78,7 @@ tunnel_alive() {
 check_url_alive() {
   [ -z "$1" ] && return 1
   local code
-  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "$1/health" 2>/dev/null)
+  code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 15 "$1/health" 2>/dev/null)
   [ "$code" = "200" ]
 }
 
@@ -110,7 +110,7 @@ for i in $(seq 0 $((TUNNEL_COUNT-1))); do
 done
 
 echo "Waiting for tunnel URLs..."
-sleep 15
+sleep 20
 for i in $(seq 0 $((TUNNEL_COUNT-1))); do
   URL=$(get_tunnel_url $i)
   if [ -n "$URL" ]; then
@@ -120,20 +120,25 @@ for i in $(seq 0 $((TUNNEL_COUNT-1))); do
   fi
 done
 
-# Register first healthy tunnel
+# Register first healthy tunnel — retry up to 5 times, 10s apart
 echo ""
 echo "Registering active tunnel..."
 REGISTERED=false
-for i in $(seq 0 $((TUNNEL_COUNT-1))); do
-  URL=$(get_tunnel_url $i)
-  if [ -n "$URL" ] && check_url_alive "$URL"; then
-    set_active $i
-    if register_url "$URL"; then
-      echo "✓ Live: $URL"
-      REGISTERED=true
-      break
+for attempt in $(seq 1 5); do
+  for i in $(seq 0 $((TUNNEL_COUNT-1))); do
+    URL=$(get_tunnel_url $i)
+    if [ -n "$URL" ] && check_url_alive "$URL"; then
+      set_active $i
+      if register_url "$URL"; then
+        echo "✓ Live: $URL"
+        REGISTERED=true
+        break 2
+      fi
     fi
-  fi
+  done
+  $REGISTERED && break
+  echo "  Attempt $attempt/5 failed — retrying in 10s..."
+  sleep 10
 done
 $REGISTERED || echo "⚠ No tunnel ready yet — watchdog will register when ready"
 
