@@ -9,18 +9,19 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #06060f;
-    --surface: #0e0e1c;
-    --surface2: #14142a;
-    --border: #1c1c38;
-    --accent: #7c3aed;
-    --accent-light: #a78bfa;
-    --accent-glow: rgba(124,58,237,0.15);
-    --text: #e2e8f0;
-    --muted: #6b7280;
-    --muted2: #4b5563;
-    --success: #10b981;
-    --warn: #f59e0b;
+    --bg: #020805;
+    --surface: #060f07;
+    --surface2: #0a180b;
+    --border: #122414;
+    --accent: #22c55e;
+    --accent-light: #4ade80;
+    --accent-neon: #57ff2c;
+    --accent-glow: rgba(87,255,44,0.1);
+    --text: #e2f5e4;
+    --muted: #5a8c62;
+    --muted2: #3a5c40;
+    --success: #4ade80;
+    --warn: #facc15;
     --error: #ef4444;
     --red: #ef4444;
   }
@@ -49,12 +50,22 @@
   }
 
   .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 20px;
     font-weight: 700;
-    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    background: linear-gradient(135deg, #57ff2c, #22c55e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
+  }
+
+  .logo img {
+    width: 28px;
+    height: 28px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 6px #57ff2c);
   }
 
   .tabs {
@@ -373,7 +384,7 @@
 
   .relevance-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    background: linear-gradient(90deg, var(--accent-neon), var(--accent-light));
     border-radius: 2px;
     transition: width 0.6s ease;
   }
@@ -500,7 +511,7 @@
   .feed-avatar {
     width: 28px; height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    background: linear-gradient(135deg, var(--accent-neon), var(--accent));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -588,7 +599,7 @@
 <body>
 
 <nav class="nav">
-  <span class="logo">biyatrix</span>
+  <span class="logo"><img src="/static/logo.png" alt="biyatrix logo"/>biyatrix</span>
   <div class="tabs">
     <button class="tab active" onclick="switchTab('dump')">DUMP</button>
     <button class="tab" onclick="switchTab('find')">FIND</button>
