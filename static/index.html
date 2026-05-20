@@ -4,43 +4,55 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>biyatrix</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #020805;
-    --surface: #060f07;
-    --surface2: #0a180b;
-    --border: #122414;
-    --accent: #22c55e;
-    --accent-light: #4ade80;
-    --accent-neon: #57ff2c;
-    --accent-glow: rgba(87,255,44,0.1);
-    --text: #e2f5e4;
-    --muted: #5a8c62;
-    --muted2: #3a5c40;
-    --success: #4ade80;
-    --warn: #facc15;
-    --error: #ef4444;
-    --red: #ef4444;
+    --bg:          oklch(3%  0.010 145);
+    --surface:     oklch(6%  0.012 145);
+    --surface2:    oklch(9%  0.015 145);
+    --border:      oklch(14% 0.020 145);
+    --border-hi:   oklch(22% 0.030 145);
+    --accent:      oklch(69% 0.200 145);
+    --accent-hi:   oklch(78% 0.180 148);
+    --neon:        oklch(88% 0.300 135);
+    --neon-glow:   oklch(88% 0.300 135 / 0.12);
+    --text:        oklch(95% 0.015 145);
+    --muted:       oklch(55% 0.060 145);
+    --muted2:      oklch(38% 0.045 145);
+    --ink:         oklch(97% 0.005 145);
+    --red:         oklch(62% 0.220  25);
+    --red-glow:    oklch(62% 0.220  25 / 0.15);
+    --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     overflow-x: hidden;
   }
 
+  /* grain overlay — raw, alive feel */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 9998;
+  }
+
   /* NAV */
   .nav {
     position: fixed;
     top: 0; left: 0; right: 0;
-    z-index: 100;
-    background: rgba(6,6,15,0.92);
-    backdrop-filter: blur(12px);
+    z-index: 9999;
+    background: oklch(3% 0.01 145 / 0.94);
+    backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
@@ -52,26 +64,26 @@
   .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 20px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #57ff2c, #22c55e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.5px;
+    gap: 9px;
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--neon);
+    letter-spacing: -0.6px;
+    text-decoration: none;
   }
 
   .logo img {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     image-rendering: pixelated;
-    filter: drop-shadow(0 0 6px #57ff2c);
+    filter: drop-shadow(0 0 7px var(--neon));
   }
 
   .tabs {
     display: flex;
-    gap: 4px;
+    gap: 2px;
     background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 10px;
     padding: 3px;
   }
@@ -81,49 +93,61 @@
     border: none;
     color: var(--muted);
     font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 6px 14px;
-    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 7px 14px;
+    min-height: 34px;
+    border-radius: 7px;
     cursor: pointer;
-    letter-spacing: 0.5px;
-    transition: all 0.2s;
+    letter-spacing: 0.8px;
+    transition: color 0.15s var(--ease-out), background 0.15s var(--ease-out);
   }
 
+  .tab:hover { color: var(--text); }
+
   .tab.active {
-    background: var(--accent);
-    color: #fff;
+    background: var(--surface2);
+    color: var(--neon);
+    box-shadow: inset 0 0 0 1px var(--border-hi);
   }
 
   /* MAIN */
   .main {
-    padding-top: 72px;
-    padding-bottom: 40px;
+    padding-top: 76px;
+    padding-bottom: 48px;
     max-width: 600px;
     margin: 0 auto;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 18px;
+    padding-right: 18px;
   }
 
   .page { display: none; }
-  .page.active { display: block; }
+  .page.active { display: block; animation: page-in 0.25s var(--ease-out); }
 
-  /* DUMP PAGE */
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── DUMP ──────────────────────────────────────────────────── */
   .dump-header {
-    padding: 24px 0 20px;
-    text-align: center;
+    padding: 28px 0 24px;
   }
 
   .dump-header h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 6px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.8px;
+    margin-bottom: 8px;
+    color: var(--text);
   }
 
   .dump-header p {
     color: var(--muted);
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
+    max-width: 52ch;
   }
 
   .dump-box {
@@ -131,26 +155,27 @@
     border: 1px solid var(--border);
     border-radius: 16px;
     overflow: hidden;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
   }
 
   .dump-box:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
+    border-color: oklch(69% 0.200 145 / 0.7);
+    box-shadow: 0 0 0 3px var(--neon-glow);
   }
 
   .dump-textarea {
     width: 100%;
-    min-height: 160px;
+    min-height: 180px;
     background: none;
     border: none;
     outline: none;
     color: var(--text);
     font-family: inherit;
     font-size: 15px;
-    line-height: 1.6;
-    padding: 18px;
+    line-height: 1.65;
+    padding: 20px;
     resize: none;
+    caret-color: var(--neon);
   }
 
   .dump-textarea::placeholder { color: var(--muted2); }
@@ -159,103 +184,119 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-top: 1px solid var(--border);
   }
 
   .btn-record {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 10px;
     color: var(--text);
     font-family: inherit;
     font-size: 13px;
-    font-weight: 500;
-    padding: 9px 14px;
+    font-weight: 600;
+    padding: 0 16px;
+    height: 44px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: border-color 0.15s var(--ease-out), color 0.15s var(--ease-out);
     flex-shrink: 0;
   }
 
-  .btn-record:hover { border-color: var(--accent); }
+  .btn-record:hover { border-color: var(--accent); color: var(--accent-hi); }
 
   .btn-record.recording {
-    background: rgba(239,68,68,0.12);
+    background: oklch(9% 0.03 25);
     border-color: var(--red);
     color: var(--red);
-    animation: pulse-border 1.5s infinite;
+    animation: pulse-ring 1.6s var(--ease-out) infinite;
   }
 
-  @keyframes pulse-border {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
-    50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+  @keyframes pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 var(--red-glow); }
+    50%       { box-shadow: 0 0 0 8px oklch(62% 0.220 25 / 0); }
   }
 
   .rec-dot {
-    width: 8px; height: 8px;
+    width: 7px; height: 7px;
     border-radius: 50%;
     background: var(--muted);
-    transition: background 0.2s;
+    flex-shrink: 0;
+    transition: background 0.15s;
   }
 
   .btn-record.recording .rec-dot {
     background: var(--red);
-    animation: blink 1s infinite;
+    animation: blink 1.1s ease-in-out infinite;
   }
 
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
   .btn-submit {
     margin-left: auto;
     background: var(--accent);
     border: none;
     border-radius: 10px;
-    color: #fff;
+    color: var(--ink);
     font-family: inherit;
     font-size: 13px;
-    font-weight: 600;
-    padding: 9px 20px;
+    font-weight: 700;
+    padding: 0 22px;
+    height: 44px;
     cursor: pointer;
-    transition: opacity 0.2s;
+    letter-spacing: 0.2px;
+    transition: opacity 0.15s var(--ease-out), transform 0.15s var(--ease-out);
   }
 
-  .btn-submit:hover { opacity: 0.88; }
-  .btn-submit:disabled { opacity: 0.4; cursor: default; }
+  .btn-submit:hover  { opacity: 0.85; transform: translateY(-1px); }
+  .btn-submit:active { opacity: 1;    transform: translateY(0); }
+  .btn-submit:disabled { opacity: 0.35; cursor: default; transform: none; }
 
   /* RESULT CARD */
   .result-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 18px;
-    margin-top: 16px;
-    animation: slide-in 0.3s ease;
+    padding: 20px;
+    margin-top: 18px;
+    animation: card-in 0.35s var(--ease-out);
   }
 
-  @keyframes slide-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  .result-card .rc-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: var(--success);
+  .rc-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--accent);
     text-transform: uppercase;
     margin-bottom: 10px;
   }
 
-  .result-card .rc-summary {
+  .rc-summary {
     font-size: 15px;
-    line-height: 1.55;
-    margin-bottom: 14px;
-    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    max-width: 65ch;
   }
 
+  .transcribed-text {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    line-height: 1.55;
+  }
+
+  /* ── TAGS ────────────────────────────────────────────────── */
   .tags {
     display: flex;
     flex-wrap: wrap;
@@ -271,42 +312,29 @@
     color: var(--muted);
   }
 
-  .tag.domain { border-color: #3b82f6; color: #93c5fd; }
-  .tag.emotion { border-color: #f59e0b; color: #fcd34d; }
-  .tag.stage { border-color: #10b981; color: #6ee7b7; }
-  .tag.tool { border-color: #6b7280; color: #9ca3af; }
-  .tag.constraint { border-color: #8b5cf6; color: #c4b5fd; }
+  .tag.domain     { border-color: oklch(55% 0.18 240); color: oklch(75% 0.16 240); }
+  .tag.emotion    { border-color: oklch(65% 0.18  80); color: oklch(82% 0.16  80); }
+  .tag.stage      { border-color: oklch(60% 0.18 155); color: oklch(78% 0.16 155); }
+  .tag.tool       { border-color: var(--border-hi);    color: var(--muted); }
+  .tag.constraint { border-color: oklch(55% 0.16 295); color: oklch(76% 0.14 295); }
 
-  .transcribed-text {
-    font-size: 13px;
-    color: var(--muted);
-    font-style: italic;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-    line-height: 1.5;
-  }
-
-  /* FIND PAGE */
-  .find-header {
-    padding: 24px 0 20px;
-  }
+  /* ── FIND ────────────────────────────────────────────────── */
+  .find-header { padding: 28px 0 22px; }
 
   .find-header h1 {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
     margin-bottom: 6px;
+    line-height: 1.15;
   }
 
-  .find-header p {
-    color: var(--muted);
-    font-size: 14px;
-  }
+  .find-header p { color: var(--muted); font-size: 14px; }
 
   .search-box {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
   }
 
   .search-input {
@@ -317,14 +345,16 @@
     color: var(--text);
     font-family: inherit;
     font-size: 14px;
-    padding: 12px 16px;
+    padding: 0 16px;
+    height: 48px;
     outline: none;
-    transition: border-color 0.2s;
+    caret-color: var(--neon);
+    transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out);
   }
 
   .search-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
+    border-color: oklch(69% 0.200 145 / 0.7);
+    box-shadow: 0 0 0 3px var(--neon-glow);
   }
 
   .search-input::placeholder { color: var(--muted2); }
@@ -333,50 +363,43 @@
     background: var(--accent);
     border: none;
     border-radius: 12px;
-    color: #fff;
+    color: var(--ink);
     font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 22px;
+    height: 48px;
     cursor: pointer;
     white-space: nowrap;
-    transition: opacity 0.2s;
+    transition: opacity 0.15s var(--ease-out), transform 0.15s var(--ease-out);
   }
 
-  .btn-find:hover { opacity: 0.88; }
-  .btn-find:disabled { opacity: 0.4; cursor: default; }
+  .btn-find:hover  { opacity: 0.85; transform: translateY(-1px); }
+  .btn-find:active { transform: translateY(0); }
+  .btn-find:disabled { opacity: 0.35; cursor: default; transform: none; }
 
   .match-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 18px;
+    padding: 20px;
     margin-bottom: 12px;
-    animation: slide-in 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    animation: card-in 0.35s var(--ease-out) both;
+    transition: border-color 0.2s var(--ease-out);
   }
 
-  .match-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px;
-    height: 100%;
-    background: var(--accent);
-    opacity: 0.6;
-  }
+  .match-card:hover { border-color: var(--border-hi); }
 
   .match-relevance {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 12px;
   }
 
   .relevance-bar {
     flex: 1;
-    height: 3px;
+    height: 2px;
     background: var(--border);
     border-radius: 2px;
     overflow: hidden;
@@ -384,76 +407,98 @@
 
   .relevance-fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-neon), var(--accent-light));
+    background: var(--neon);
     border-radius: 2px;
-    transition: width 0.6s ease;
+    transition: width 0.7s var(--ease-out);
   }
 
   .relevance-num {
     font-size: 11px;
-    color: var(--accent-light);
-    font-weight: 600;
-    min-width: 32px;
+    color: var(--neon);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 34px;
     text-align: right;
   }
 
   .match-summary {
     font-size: 15px;
-    line-height: 1.55;
-    margin-bottom: 10px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    max-width: 65ch;
   }
 
   .match-why {
     font-size: 13px;
     color: var(--muted);
     font-style: italic;
-    padding: 10px 12px;
+    padding: 10px 14px;
     background: var(--surface2);
     border-radius: 8px;
     margin-bottom: 12px;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 
   .match-solution {
     font-size: 13px;
-    color: #6ee7b7;
-    padding: 10px 12px;
-    background: rgba(16,185,129,0.06);
-    border: 1px solid rgba(16,185,129,0.15);
+    color: oklch(78% 0.16 155);
+    padding: 12px 14px;
+    background: oklch(9% 0.015 145);
+    border: 1px solid oklch(60% 0.18 155 / 0.2);
     border-radius: 8px;
     margin-bottom: 12px;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 
   .match-solution strong {
     display: block;
     font-size: 10px;
-    letter-spacing: 0.8px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    color: var(--success);
-    margin-bottom: 4px;
+    color: oklch(70% 0.18 155);
+    margin-bottom: 5px;
+    font-style: normal;
   }
 
   .no-matches {
     text-align: center;
-    padding: 48px 24px;
+    padding: 56px 24px;
     color: var(--muted);
   }
 
-  .no-matches .icon { font-size: 40px; margin-bottom: 12px; }
-  .no-matches p { font-size: 14px; line-height: 1.6; }
+  .no-matches .icon { font-size: 36px; margin-bottom: 14px; }
+  .no-matches p { font-size: 14px; line-height: 1.7; max-width: 36ch; margin: 0 auto; }
 
-  /* FEED PAGE */
+  /* ── FEED ────────────────────────────────────────────────── */
   .feed-header {
-    padding: 24px 0 20px;
+    padding: 28px 0 20px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
   }
 
   .feed-header h1 {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+  }
+
+  .feed-live {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--neon);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--neon);
+    animation: blink 2s ease-in-out infinite;
   }
 
   .feed-filters {
@@ -461,8 +506,9 @@
     gap: 6px;
     overflow-x: auto;
     padding-bottom: 4px;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   .feed-filters::-webkit-scrollbar { display: none; }
@@ -474,51 +520,55 @@
     color: var(--muted);
     font-family: inherit;
     font-size: 12px;
-    font-weight: 500;
-    padding: 6px 14px;
+    font-weight: 600;
+    padding: 0 14px;
+    height: 34px;
     cursor: pointer;
     white-space: nowrap;
-    transition: all 0.2s;
     flex-shrink: 0;
+    transition: all 0.15s var(--ease-out);
   }
 
+  .filter-chip:hover { color: var(--text); border-color: var(--border-hi); }
+
   .filter-chip.active {
-    background: var(--accent-glow);
+    background: oklch(6% 0.025 145);
     border-color: var(--accent);
-    color: var(--accent-light);
+    color: var(--neon);
   }
 
   .feed-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
-    padding: 16px 18px;
+    padding: 18px 20px;
     margin-bottom: 10px;
-    animation: slide-in 0.25s ease;
-    cursor: default;
-    transition: border-color 0.2s;
+    animation: card-in 0.3s var(--ease-out) both;
+    transition: border-color 0.2s var(--ease-out);
   }
 
-  .feed-card:hover { border-color: #2a2a50; }
+  .feed-card:hover { border-color: var(--border-hi); }
 
   .feed-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
     margin-bottom: 10px;
   }
 
   .feed-avatar {
-    width: 28px; height: 28px;
+    width: 30px; height: 30px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-neon), var(--accent));
+    background: var(--surface2);
+    border: 1px solid var(--border-hi);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 11px;
-    font-weight: 700;
-    color: #fff;
+    font-weight: 800;
+    color: var(--neon);
     flex-shrink: 0;
+    font-family: 'Inter', monospace;
   }
 
   .feed-user {
@@ -529,115 +579,129 @@
 
   .feed-time {
     font-size: 11px;
-    color: var(--muted);
+    color: var(--muted2);
     margin-left: auto;
+    font-variant-numeric: tabular-nums;
   }
 
   .feed-summary {
     font-size: 14px;
-    line-height: 1.55;
+    line-height: 1.6;
     margin-bottom: 12px;
+    max-width: 65ch;
   }
 
-  /* LOADER */
+  /* ── LOADER ──────────────────────────────────────────────── */
   .loader {
     display: flex;
     justify-content: center;
-    padding: 32px;
+    padding: 40px;
   }
 
   .spinner {
-    width: 28px; height: 28px;
+    width: 24px; height: 24px;
     border: 2px solid var(--border);
     border-top-color: var(--accent);
     border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    animation: spin 0.65s linear infinite;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* TOAST */
+  /* ── TOAST ───────────────────────────────────────────────── */
   .toast {
     position: fixed;
-    bottom: 24px;
+    bottom: 28px;
     left: 50%;
-    transform: translateX(-50%) translateY(80px);
+    transform: translateX(-50%) translateY(90px);
     background: var(--surface2);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-hi);
     border-radius: 12px;
-    padding: 12px 20px;
+    padding: 12px 22px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text);
-    z-index: 999;
-    transition: transform 0.3s ease;
+    z-index: 10000;
+    transition: transform 0.35s var(--ease-out);
     white-space: nowrap;
+    pointer-events: none;
   }
 
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.success { border-color: var(--success); color: #6ee7b7; }
-  .toast.error { border-color: var(--error); color: #fca5a5; }
+  .toast.show  { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--accent); color: var(--accent-hi); }
+  .toast.error   { border-color: var(--red);    color: oklch(75% 0.18 25); }
 
-  /* EMPTY */
+  /* ── EMPTY ───────────────────────────────────────────────── */
   .empty {
     text-align: center;
-    padding: 64px 24px;
+    padding: 72px 24px;
     color: var(--muted);
   }
-  .empty .icon { font-size: 48px; margin-bottom: 16px; }
-  .empty h3 { font-size: 16px; margin-bottom: 8px; color: var(--text); }
-  .empty p { font-size: 14px; line-height: 1.6; }
 
-  /* DIVIDER */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 20px 0;
-  }
+  .empty .icon { font-size: 44px; margin-bottom: 18px; }
+  .empty h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .empty p  { font-size: 14px; line-height: 1.7; max-width: 34ch; margin: 0 auto; }
+
+  /* stagger helpers */
+  .match-card:nth-child(1) { animation-delay: 0ms;  }
+  .match-card:nth-child(2) { animation-delay: 60ms; }
+  .match-card:nth-child(3) { animation-delay: 120ms;}
+  .match-card:nth-child(4) { animation-delay: 180ms;}
+  .match-card:nth-child(5) { animation-delay: 240ms;}
+
+  .feed-card:nth-child(1)  { animation-delay: 0ms;  }
+  .feed-card:nth-child(2)  { animation-delay: 40ms; }
+  .feed-card:nth-child(3)  { animation-delay: 80ms; }
+  .feed-card:nth-child(4)  { animation-delay: 120ms;}
+  .feed-card:nth-child(5)  { animation-delay: 160ms;}
+  .feed-card:nth-child(n+6){ animation-delay: 200ms;}
 </style>
 </head>
 <body>
 
-<nav class="nav">
-  <span class="logo"><img src="/static/logo.png" alt="biyatrix logo"/>biyatrix</span>
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('dump')">DUMP</button>
-    <button class="tab" onclick="switchTab('find')">FIND</button>
-    <button class="tab" onclick="switchTab('feed')">FEED</button>
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <span class="logo" role="img" aria-label="biyatrix">
+    <img src="/static/logo.png" alt="" aria-hidden="true"/>biyatrix
+  </span>
+  <div class="tabs" role="tablist">
+    <button class="tab active" role="tab" aria-selected="true"  aria-controls="page-dump" onclick="switchTab('dump',this)">DUMP</button>
+    <button class="tab"        role="tab" aria-selected="false" aria-controls="page-find" onclick="switchTab('find',this)">FIND</button>
+    <button class="tab"        role="tab" aria-selected="false" aria-controls="page-feed" onclick="switchTab('feed',this)">FEED</button>
   </div>
 </nav>
 
 <main class="main">
 
-  <!-- DUMP TAB -->
-  <div id="page-dump" class="page active">
+  <!-- DUMP -->
+  <div id="page-dump" class="page active" role="tabpanel">
     <div class="dump-header">
       <h1>what's on your mind?</h1>
-      <p>a problem, a struggle, a weird fix, a win — just dump it.<br/>no polish needed. AI organizes it for you.</p>
+      <p>a problem, a struggle, a weird fix, a win. dump it raw.<br/>no polish. AI organizes it, you get credit forever.</p>
     </div>
 
     <div class="dump-box">
       <textarea
         id="dump-text"
         class="dump-textarea"
-        placeholder="what happened today? what are you building? what broke? what worked? what's frustrating you right now?&#10;&#10;type it messy. speak it out loud. doesn't matter."
-        rows="6"
+        aria-label="Brain dump — type your thoughts"
+        placeholder="what happened today? what are you building? what broke? what worked? what's driving you insane right now?&#10;&#10;type it messy. speak it out loud. doesn't matter."
+        rows="7"
       ></textarea>
       <div class="dump-actions">
-        <button class="btn-record" id="btn-record" onclick="toggleRecording()">
-          <span class="rec-dot"></span>
+        <button class="btn-record" id="btn-record" onclick="toggleRecording()" aria-label="Record voice note" aria-pressed="false">
+          <span class="rec-dot" aria-hidden="true"></span>
           <span id="rec-label">voice</span>
         </button>
-        <span id="rec-timer" style="font-size:12px;color:var(--muted);display:none;"></span>
+        <span id="rec-timer" style="font-size:12px;color:var(--muted);display:none;" aria-live="polite"></span>
         <button class="btn-submit" id="btn-submit" onclick="submitDump()">dump it →</button>
       </div>
     </div>
 
-    <div id="dump-result"></div>
+    <div id="dump-result" aria-live="polite"></div>
   </div>
 
-  <!-- FIND TAB -->
-  <div id="page-find" class="page">
+  <!-- FIND -->
+  <div id="page-find" class="page" role="tabpanel">
     <div class="find-header">
       <h1>find your people</h1>
       <p>describe your struggle. find who's been there.</p>
@@ -648,22 +712,26 @@
         type="text"
         id="find-input"
         class="search-input"
-        placeholder="e.g. building solo with no budget and can't figure out auth..."
+        aria-label="Describe your situation or struggle"
+        placeholder="e.g. building solo, no budget, can't figure out auth and running out of time..."
         onkeydown="if(event.key==='Enter')doFind()"
       />
       <button class="btn-find" id="btn-find" onclick="doFind()">search</button>
     </div>
 
-    <div id="find-results"></div>
+    <div id="find-results" aria-live="polite"></div>
   </div>
 
-  <!-- FEED TAB -->
-  <div id="page-feed" class="page">
+  <!-- FEED -->
+  <div id="page-feed" class="page" role="tabpanel">
     <div class="feed-header">
       <h1>raw feed</h1>
+      <span class="feed-live" aria-label="Live feed">
+        <span class="live-dot" aria-hidden="true"></span>live
+      </span>
     </div>
 
-    <div class="feed-filters" id="feed-filters">
+    <div class="feed-filters" role="group" aria-label="Filter by domain">
       <button class="filter-chip active" onclick="filterFeed('all',this)">all</button>
       <button class="filter-chip" onclick="filterFeed('tech',this)">tech</button>
       <button class="filter-chip" onclick="filterFeed('business',this)">business</button>
@@ -674,104 +742,74 @@
       <button class="filter-chip" onclick="filterFeed('creative',this)">creative</button>
     </div>
 
-    <div id="feed-list"></div>
+    <div id="feed-list" aria-live="polite"></div>
   </div>
 
 </main>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-// ── STATE ──────────────────────────────────────────────────────────────────
 const getUserId = () => {
   let id = localStorage.getItem('biyatrix_uid');
-  if (!id) {
-    id = 'u_' + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem('biyatrix_uid', id);
-  }
+  if (!id) { id = 'u_' + Math.random().toString(36).slice(2, 10); localStorage.setItem('biyatrix_uid', id); }
   return id;
 };
 
-let mediaRecorder = null;
-let audioChunks = [];
-let isRecording = false;
-let recInterval = null;
-let recSeconds = 0;
-let allFeedEntries = [];
-let activeFeedFilter = 'all';
+let mediaRecorder = null, audioChunks = [], isRecording = false;
+let recInterval = null, recSeconds = 0;
+let allFeedEntries = [], activeFeedFilter = 'all';
 
-// ── TABS ───────────────────────────────────────────────────────────────────
-function switchTab(tab) {
+function switchTab(tab, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
   document.getElementById('page-' + tab).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected','true');
   if (tab === 'feed') loadFeed();
 }
 
-// ── TOAST ──────────────────────────────────────────────────────────────────
 function showToast(msg, type = '') {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show ' + type;
-  setTimeout(() => { t.classList.remove('show'); }, 2800);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ── VOICE RECORDING ────────────────────────────────────────────────────────
 async function toggleRecording() {
-  if (isRecording) {
-    stopRecording();
-  } else {
-    await startRecording();
-  }
+  isRecording ? stopRecording() : await startRecording();
 }
 
 async function startRecording() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const options = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-      ? { mimeType: 'audio/webm;codecs=opus' }
-      : MediaRecorder.isTypeSupported('audio/ogg')
-      ? { mimeType: 'audio/ogg' }
-      : {};
-
-    mediaRecorder = new MediaRecorder(stream, options);
+    const opts = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? { mimeType: 'audio/webm;codecs=opus' }
+                : MediaRecorder.isTypeSupported('audio/ogg') ? { mimeType: 'audio/ogg' } : {};
+    mediaRecorder = new MediaRecorder(stream, opts);
     audioChunks = [];
-
-    mediaRecorder.ondataavailable = e => {
-      if (e.data.size > 0) audioChunks.push(e.data);
-    };
-
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
     mediaRecorder.onstop = async () => {
       stream.getTracks().forEach(t => t.stop());
       const mimeType = mediaRecorder.mimeType || 'audio/webm';
-      const blob = new Blob(audioChunks, { type: mimeType });
-      await submitDump(null, blob, mimeType);
+      await submitDump(null, new Blob(audioChunks, { type: mimeType }), mimeType);
     };
-
     mediaRecorder.start(250);
-    isRecording = true;
-    recSeconds = 0;
+    isRecording = true; recSeconds = 0;
     updateRecordUI();
-
     recInterval = setInterval(() => {
       recSeconds++;
-      const m = String(Math.floor(recSeconds / 60)).padStart(2, '0');
-      const s = String(recSeconds % 60).padStart(2, '0');
-      document.getElementById('rec-timer').textContent = m + ':' + s;
+      const m = String(Math.floor(recSeconds/60)).padStart(2,'0');
+      const s = String(recSeconds%60).padStart(2,'0');
+      document.getElementById('rec-timer').textContent = m+':'+s;
       if (recSeconds >= 120) stopRecording();
     }, 1000);
-
     document.getElementById('rec-timer').style.display = 'inline';
-  } catch (err) {
-    showToast('mic access denied', 'error');
-  }
+  } catch { showToast('mic access denied', 'error'); }
 }
 
 function stopRecording() {
   if (mediaRecorder && isRecording) {
-    mediaRecorder.stop();
-    isRecording = false;
+    mediaRecorder.stop(); isRecording = false;
     clearInterval(recInterval);
     document.getElementById('rec-timer').style.display = 'none';
     updateRecordUI();
@@ -781,168 +819,116 @@ function stopRecording() {
 function updateRecordUI() {
   const btn = document.getElementById('btn-record');
   const label = document.getElementById('rec-label');
-  if (isRecording) {
-    btn.classList.add('recording');
-    label.textContent = 'stop';
-  } else {
-    btn.classList.remove('recording');
-    label.textContent = 'voice';
-  }
+  btn.classList.toggle('recording', isRecording);
+  btn.setAttribute('aria-pressed', String(isRecording));
+  label.textContent = isRecording ? 'stop' : 'voice';
 }
 
-// ── DUMP ───────────────────────────────────────────────────────────────────
 async function submitDump(text, audioBlob, mimeType) {
   const textarea = document.getElementById('dump-text');
   const submitBtn = document.getElementById('btn-submit');
   const raw = text !== null ? text : textarea.value.trim();
-
-  if (!raw && !audioBlob) {
-    showToast('write something or record your voice', 'error');
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'indexing...';
-
+  if (!raw && !audioBlob) { showToast('write something or record your voice', 'error'); return; }
+  submitBtn.disabled = true; submitBtn.textContent = 'indexing...';
   const resultEl = document.getElementById('dump-result');
   resultEl.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
-
   const form = new FormData();
   form.append('user_id', getUserId());
   if (audioBlob) {
-    const ext = (mimeType || 'audio/webm').includes('ogg') ? 'ogg' : 'webm';
-    form.append('audio', audioBlob, 'recording.' + ext);
-  } else {
-    form.append('text', raw);
-  }
-
+    const ext = (mimeType||'audio/webm').includes('ogg') ? 'ogg' : 'webm';
+    form.append('audio', audioBlob, 'recording.'+ext);
+  } else { form.append('text', raw); }
   try {
     const res = await fetch('/dump', { method: 'POST', body: form });
     const data = await res.json();
-
     if (!res.ok) throw new Error(data.detail || 'error');
-
     textarea.value = '';
-    showToast('dumped and indexed ✓', 'success');
+    showToast('dumped and indexed', 'success');
     renderDumpResult(data);
   } catch (err) {
     resultEl.innerHTML = '';
     showToast(err.message || 'something went wrong', 'error');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'dump it →';
-  }
+  } finally { submitBtn.disabled = false; submitBtn.textContent = 'dump it →'; }
 }
 
 function renderDumpResult(data) {
   const e = data.extracted || {};
   const el = document.getElementById('dump-result');
-
-  const constraints = (e.constraints || []).map(c => `<span class="tag constraint">${c}</span>`).join('');
-  const tools = (e.tools || []).map(t => `<span class="tag tool">${t}</span>`).join('');
-
-  const transcriptLine = data.transcribed && !document.getElementById('dump-text').value
-    ? `<p class="transcribed-text">"${data.transcribed}"</p>`
-    : '';
-
+  const constraints = (e.constraints||[]).map(c=>`<span class="tag constraint">${c}</span>`).join('');
+  const tools = (e.tools||[]).map(t=>`<span class="tag tool">${t}</span>`).join('');
+  const transcript = data.transcribed && !document.getElementById('dump-text').value
+    ? `<p class="transcribed-text">"${data.transcribed}"</p>` : '';
   el.innerHTML = `
     <div class="result-card">
-      <div class="rc-label">indexed successfully</div>
+      <div class="rc-label">indexed</div>
       <p class="rc-summary">${e.summary || 'your dump has been saved'}</p>
       <div class="tags">
-        ${e.domain ? `<span class="tag domain">${e.domain}</span>` : ''}
+        ${e.domain  ? `<span class="tag domain">${e.domain}</span>`   : ''}
         ${e.emotion ? `<span class="tag emotion">${e.emotion}</span>` : ''}
-        ${e.stage ? `<span class="tag stage">${e.stage}</span>` : ''}
-        ${constraints}
-        ${tools}
+        ${e.stage   ? `<span class="tag stage">${e.stage}</span>`     : ''}
+        ${constraints}${tools}
       </div>
-      ${transcriptLine}
+      ${transcript}
     </div>`;
 }
 
-// ── FIND ───────────────────────────────────────────────────────────────────
 async function doFind() {
   const query = document.getElementById('find-input').value.trim();
   if (!query) { showToast('describe your situation first', 'error'); return; }
-
   const btn = document.getElementById('btn-find');
   const results = document.getElementById('find-results');
-  btn.disabled = true;
-  btn.textContent = 'searching...';
+  btn.disabled = true; btn.textContent = 'searching...';
   results.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
-
   try {
-    const res = await fetch('/find', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query }),
-    });
+    const res = await fetch('/find', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({query}) });
     const data = await res.json();
-
     if (!res.ok) throw new Error(data.detail || 'error');
-
     renderMatches(data.matches || []);
   } catch (err) {
     results.innerHTML = '';
     showToast(err.message || 'search failed', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'search';
-  }
+  } finally { btn.disabled = false; btn.textContent = 'search'; }
 }
 
 function renderMatches(matches) {
   const el = document.getElementById('find-results');
   if (!matches.length) {
-    el.innerHTML = `
-      <div class="no-matches">
-        <div class="icon">🔍</div>
-        <p>no close matches yet.<br/>be more specific, or be the first to dump this kind of struggle.</p>
-      </div>`;
+    el.innerHTML = `<div class="no-matches"><div class="icon">🔍</div><p>no close matches yet. be more specific, or be the first to dump this struggle.</p></div>`;
     return;
   }
-
   el.innerHTML = matches.map(m => {
     const score = m.relevance_score || 0;
-    const constraints = (m.constraints || []).map(c => `<span class="tag constraint">${c}</span>`).join('');
-    const tools = (m.tools || []).map(t => `<span class="tag tool">${t}</span>`).join('');
-    const solutionBlock = m.solution
-      ? `<div class="match-solution"><strong>what worked</strong>${m.solution}</div>`
-      : '';
-
+    const constraints = (m.constraints||[]).map(c=>`<span class="tag constraint">${c}</span>`).join('');
+    const tools = (m.tools||[]).map(t=>`<span class="tag tool">${t}</span>`).join('');
+    const solution = m.solution ? `<div class="match-solution"><strong>what worked</strong>${m.solution}</div>` : '';
     return `
       <div class="match-card">
         <div class="match-relevance">
           <div class="relevance-bar"><div class="relevance-fill" style="width:${score}%"></div></div>
           <span class="relevance-num">${score}%</span>
         </div>
-        <p class="match-summary">${m.summary || ''}</p>
+        <p class="match-summary">${m.summary||''}</p>
         ${m.why_relevant ? `<div class="match-why">${m.why_relevant}</div>` : ''}
-        ${solutionBlock}
+        ${solution}
         <div class="tags">
-          ${m.domain ? `<span class="tag domain">${m.domain}</span>` : ''}
+          ${m.domain  ? `<span class="tag domain">${m.domain}</span>`   : ''}
           ${m.emotion ? `<span class="tag emotion">${m.emotion}</span>` : ''}
-          ${m.stage ? `<span class="tag stage">${m.stage}</span>` : ''}
-          ${constraints}
-          ${tools}
+          ${m.stage   ? `<span class="tag stage">${m.stage}</span>`     : ''}
+          ${constraints}${tools}
         </div>
       </div>`;
   }).join('');
 }
 
-// ── FEED ───────────────────────────────────────────────────────────────────
 async function loadFeed() {
   const el = document.getElementById('feed-list');
   el.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
-
   try {
     const res = await fetch('/feed');
     const data = await res.json();
     allFeedEntries = data.entries || [];
     renderFeed();
-  } catch {
-    el.innerHTML = '<div class="empty"><p>could not load feed</p></div>';
-  }
+  } catch { el.innerHTML = '<div class="empty"><p>could not load feed</p></div>'; }
 }
 
 function filterFeed(domain, chipEl) {
@@ -954,37 +940,26 @@ function filterFeed(domain, chipEl) {
 
 function renderFeed() {
   const el = document.getElementById('feed-list');
-  const entries = activeFeedFilter === 'all'
-    ? allFeedEntries
-    : allFeedEntries.filter(e => e.domain === activeFeedFilter);
-
+  const entries = activeFeedFilter === 'all' ? allFeedEntries : allFeedEntries.filter(e => e.domain === activeFeedFilter);
   if (!entries.length) {
-    el.innerHTML = `
-      <div class="empty">
-        <div class="icon">📭</div>
-        <h3>nothing here yet</h3>
-        <p>be the first to dump something in this category.</p>
-      </div>`;
+    el.innerHTML = `<div class="empty"><div class="icon">📭</div><h3>nothing here yet</h3><p>be the first to dump something in this category.</p></div>`;
     return;
   }
-
   el.innerHTML = entries.map(e => {
-    const initials = getUserId().slice(2, 4).toUpperCase();
     const time = e.created_at ? formatTime(e.created_at) : '';
-    const tools = (e.tools || []).map(t => `<span class="tag tool">${t}</span>`).join('');
-
+    const tools = (e.tools||[]).map(t=>`<span class="tag tool">${t}</span>`).join('');
     return `
       <div class="feed-card">
         <div class="feed-meta">
-          <div class="feed-avatar">${getInitials(e.id)}</div>
+          <div class="feed-avatar" aria-hidden="true">${getInitials(e.id)}</div>
           <span class="feed-user">anon_${e.id}</span>
           <span class="feed-time">${time}</span>
         </div>
-        <p class="feed-summary">${e.summary || ''}</p>
+        <p class="feed-summary">${e.summary||''}</p>
         <div class="tags">
-          ${e.domain ? `<span class="tag domain">${e.domain}</span>` : ''}
+          ${e.domain  ? `<span class="tag domain">${e.domain}</span>`   : ''}
           ${e.emotion ? `<span class="tag emotion">${e.emotion}</span>` : ''}
-          ${e.stage ? `<span class="tag stage">${e.stage}</span>` : ''}
+          ${e.stage   ? `<span class="tag stage">${e.stage}</span>`     : ''}
           ${tools}
         </div>
       </div>`;
@@ -992,21 +967,19 @@ function renderFeed() {
 }
 
 function getInitials(id) {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const n = typeof id === 'number' ? id : parseInt(id, 10) || 0;
-  return chars[n % chars.length] + chars[(n * 7 + 3) % chars.length];
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const n = typeof id === 'number' ? id : parseInt(id,10)||0;
+  return c[n%c.length] + c[(n*7+3)%c.length];
 }
 
 function formatTime(ts) {
   if (!ts) return '';
   try {
-    const d = new Date(ts + 'Z');
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
+    const diff = Math.floor((Date.now() - new Date(ts+'Z')) / 1000);
     if (diff < 60) return 'just now';
-    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-    return Math.floor(diff / 86400) + 'd ago';
+    if (diff < 3600) return Math.floor(diff/60)+'m ago';
+    if (diff < 86400) return Math.floor(diff/3600)+'h ago';
+    return Math.floor(diff/86400)+'d ago';
   } catch { return ''; }
 }
 </script>
