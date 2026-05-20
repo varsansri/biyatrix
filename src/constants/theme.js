@@ -1,0 +1,33 @@
+export const TERMINAL_THEME = {
+  background:   '#0a1508',
+  foreground:   '#e8e8e8',
+  cursor:       '#00ff00',
+  cursorAccent: '#000000',
+  black:        '#000000',
+  red:          '#ff4444',
+  green:        '#00ff00',
+  yellow:       '#ffaa00',
+  blue:         '#44aaff',
+  magenta:      '#aa88ff',
+  cyan:         '#00ffcc',
+  white:        '#d0d0d0',
+  brightBlack:  '#2a3a2a',
+  brightRed:    '#ff6666',
+  brightGreen:  '#44ff44',
+  brightYellow: '#ffcc44',
+  brightBlue:   '#66bbff',
+  brightMagenta:'#cc99ff',
+  brightCyan:   '#33ffdd',
+  brightWhite:  '#ffffff',
+}
+
+export const COLORS = {
+  bg:         '#0a1508',
+  surface:    '#131e13',
+  surface2:   '#1b271b',
+  border:     '#1e2e1e',
+  accent:     '#00ff00',
+  accentDim:  '#007700',
+  danger:     '#ff4444',
+  warn:       '#ffaa00',
+}
