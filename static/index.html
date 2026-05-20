@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>biyatrix</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #06060f;
+    --surface: #0e0e1c;
+    --surface2: #14142a;
+    --border: #1c1c38;
+    --accent: #7c3aed;
+    --accent-light: #a78bfa;
+    --accent-glow: rgba(124,58,237,0.15);
+    --text: #e2e8f0;
+    --muted: #6b7280;
+    --muted2: #4b5563;
+    --success: #10b981;
+    --warn: #f59e0b;
+    --error: #ef4444;
+    --red: #ef4444;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(6,6,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 56px;
+  }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 3px;
+  }
+
+  .tab {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* MAIN */
+  .main {
+    padding-top: 72px;
+    padding-bottom: 40px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* DUMP PAGE */
+  .dump-header {
+    padding: 24px 0 20px;
+    text-align: center;
+  }
+
+  .dump-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .dump-header p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .dump-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .dump-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .dump-textarea {
+    width: 100%;
+    min-height: 160px;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 18px;
+    resize: none;
+  }
+
+  .dump-textarea::placeholder { color: var(--muted2); }
+
+  .dump-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-record {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-record:hover { border-color: var(--accent); }
+
+  .btn-record.recording {
+    background: rgba(239,68,68,0.12);
+    border-color: var(--red);
+    color: var(--red);
+    animation: pulse-border 1.5s infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
+  }
+
+  .rec-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: background 0.2s;
+  }
+
+  .btn-record.recording .rec-dot {
+    background: var(--red);
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .btn-submit {
+    margin-left: auto;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 20px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-submit:hover { opacity: 0.88; }
+  .btn-submit:disabled { opacity: 0.4; cursor: default; }
+
+  /* RESULT CARD */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 16px;
+    animation: slide-in 0.3s ease;
+  }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card .rc-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--success);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .result-card .rc-summary {
+    font-size: 15px;
+    line-height: 1.55;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .tag.domain { border-color: #3b82f6; color: #93c5fd; }
+  .tag.emotion { border-color: #f59e0b; color: #fcd34d; }
+  .tag.stage { border-color: #10b981; color: #6ee7b7; }
+  .tag.tool { border-color: #6b7280; color: #9ca3af; }
+  .tag.constraint { border-color: #8b5cf6; color: #c4b5fd; }
+
+  .transcribed-text {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    line-height: 1.5;
+  }
+
+  /* FIND PAGE */
+  .find-header {
+    padding: 24px 0 20px;
+  }
+
+  .find-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .find-header p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .search-input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .search-input::placeholder { color: var(--muted2); }
+
+  .btn-find {
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+
+  .btn-find:hover { opacity: 0.88; }
+  .btn-find:disabled { opacity: 0.4; cursor: default; }
+
+  .match-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 12px;
+    animation: slide-in 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .match-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+
+  .match-relevance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .relevance-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .relevance-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  .relevance-num {
+    font-size: 11px;
+    color: var(--accent-light);
+    font-weight: 600;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  .match-summary {
+    font-size: 15px;
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+
+  .match-why {
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .match-solution {
+    font-size: 13px;
+    color: #6ee7b7;
+    padding: 10px 12px;
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.15);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .match-solution strong {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--success);
+    margin-bottom: 4px;
+  }
+
+  .no-matches {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+  }
+
+  .no-matches .icon { font-size: 40px; margin-bottom: 12px; }
+  .no-matches p { font-size: 14px; line-height: 1.6; }
+
+  /* FEED PAGE */
+  .feed-header {
+    padding: 24px 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .feed-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .feed-filters {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+    scrollbar-width: none;
+  }
+
+  .feed-filters::-webkit-scrollbar { display: none; }
+
+  .filter-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .filter-chip.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    color: var(--accent-light);
+  }
+
+  .feed-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    animation: slide-in 0.25s ease;
+    cursor: default;
+    transition: border-color 0.2s;
+  }
+
+  .feed-card:hover { border-color: #2a2a50; }
+
+  .feed-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .feed-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #4f46e5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .feed-user {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .feed-time {
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .feed-summary {
+    font-size: 14px;
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  /* LOADER */
+  .loader {
+    display: flex;
+    justify-content: center;
+    padding: 32px;
+  }
+
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--success); color: #6ee7b7; }
+  .toast.error { border-color: var(--error); color: #fca5a5; }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--muted);
+  }
+  .empty .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty h3 { font-size: 16px; margin-bottom: 8px; color: var(--text); }
+  .empty p { font-size: 14px; line-height: 1.6; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="logo">biyatrix</span>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dump')">DUMP</button>
+    <button class="tab" onclick="switchTab('find')">FIND</button>
+    <button class="tab" onclick="switchTab('feed')">FEED</button>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- DUMP TAB -->
+  <div id="page-dump" class="page active">
+    <div class="dump-header">
+      <h1>what's on your mind?</h1>
+      <p>a problem, a struggle, a weird fix, a win — just dump it.<br/>no polish needed. AI organizes it for you.</p>
+    </div>
+
+    <div class="dump-box">
+      <textarea
+        id="dump-text"
+        class="dump-textarea"
+        placeholder="what happened today? what are you building? what broke? what worked? what's frustrating you right now?&#10;&#10;type it messy. speak it out loud. doesn't matter."
+        rows="6"
+      ></textarea>
+      <div class="dump-actions">
+        <button class="btn-record" id="btn-record" onclick="toggleRecording()">
+          <span class="rec-dot"></span>
+          <span id="rec-label">voice</span>
+        </button>
+        <span id="rec-timer" style="font-size:12px;color:var(--muted);display:none;"></span>
+        <button class="btn-submit" id="btn-submit" onclick="submitDump()">dump it →</button>
+      </div>
+    </div>
+
+    <div id="dump-result"></div>
+  </div>
+
+  <!-- FIND TAB -->
+  <div id="page-find" class="page">
+    <div class="find-header">
+      <h1>find your people</h1>
+      <p>describe your struggle. find who's been there.</p>
+    </div>
+
+    <div class="search-box">
+      <input
+        type="text"
+        id="find-input"
+        class="search-input"
+        placeholder="e.g. building solo with no budget and can't figure out auth..."
+        onkeydown="if(event.key==='Enter')doFind()"
+      />
+      <button class="btn-find" id="btn-find" onclick="doFind()">search</button>
+    </div>
+
+    <div id="find-results"></div>
+  </div>
+
+  <!-- FEED TAB -->
+  <div id="page-feed" class="page">
+    <div class="feed-header">
+      <h1>raw feed</h1>
+    </div>
+
+    <div class="feed-filters" id="feed-filters">
+      <button class="filter-chip active" onclick="filterFeed('all',this)">all</button>
+      <button class="filter-chip" onclick="filterFeed('tech',this)">tech</button>
+      <button class="filter-chip" onclick="filterFeed('business',this)">business</button>
+      <button class="filter-chip" onclick="filterFeed('personal',this)">personal</button>
+      <button class="filter-chip" onclick="filterFeed('craft',this)">craft</button>
+      <button class="filter-chip" onclick="filterFeed('health',this)">health</button>
+      <button class="filter-chip" onclick="filterFeed('finance',this)">finance</button>
+      <button class="filter-chip" onclick="filterFeed('creative',this)">creative</button>
+    </div>
+
+    <div id="feed-list"></div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+const getUserId = () => {
+  let id = localStorage.getItem('biyatrix_uid');
+  if (!id) {
+    id = 'u_' + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem('biyatrix_uid', id);
+  }
+  return id;
+};
+
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let recInterval = null;
+let recSeconds = 0;
+let allFeedEntries = [];
+let activeFeedFilter = 'all';
+
+// ── TABS ───────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'feed') loadFeed();
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.classList.remove('show'); }, 2800);
+}
+
+// ── VOICE RECORDING ────────────────────────────────────────────────────────
+async function toggleRecording() {
+  if (isRecording) {
+    stopRecording();
+  } else {
+    await startRecording();
+  }
+}
+
+async function startRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const options = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? { mimeType: 'audio/webm;codecs=opus' }
+      : MediaRecorder.isTypeSupported('audio/ogg')
+      ? { mimeType: 'audio/ogg' }
+      : {};
+
+    mediaRecorder = new MediaRecorder(stream, options);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const mimeType = mediaRecorder.mimeType || 'audio/webm';
+      const blob = new Blob(audioChunks, { type: mimeType });
+      await submitDump(null, blob, mimeType);
+    };
+
+    mediaRecorder.start(250);
+    isRecording = true;
+    recSeconds = 0;
+    updateRecordUI();
+
+    recInterval = setInterval(() => {
+      recSeconds++;
+      const m = String(Math.floor(recSeconds / 60)).padStart(2, '0');
+      const s = String(recSeconds % 60).padStart(2, '0');
+      document.getElementById('rec-timer').textContent = m + ':' + s;
+      if (recSeconds >= 120) stopRecording();
+    }, 1000);
+
+    document.getElementById('rec-timer').style.display = 'inline';
+  } catch (err) {
+    showToast('mic access denied', 'error');
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    isRecording = false;
+    clearInterval(recInterval);
+    document.getElementById('rec-timer').style.display = 'none';
+    updateRecordUI();
+  }
+}
+
+function updateRecordUI() {
+  const btn = document.getElementById('btn-record');
+  const label = document.getElementById('rec-label');
+  if (isRecording) {
+    btn.classList.add('recording');
+    label.textContent = 'stop';
+  } else {
+    btn.classList.remove('recording');
+    label.textContent = 'voice';
+  }
+}
+
+// ── DUMP ───────────────────────────────────────────────────────────────────
+async function submitDump(text, audioBlob, mimeType) {
+  const textarea = document.getElementById('dump-text');
+  const submitBtn = document.getElementById('btn-submit');
+  const raw = text !== null ? text : textarea.value.trim();
+
+  if (!raw && !audioBlob) {
+    showToast('write something or record your voice', 'error');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'indexing...';
+
+  const resultEl = document.getElementById('dump-result');
+  resultEl.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+
+  const form = new FormData();
+  form.append('user_id', getUserId());
+  if (audioBlob) {
+    const ext = (mimeType || 'audio/webm').includes('ogg') ? 'ogg' : 'webm';
+    form.append('audio', audioBlob, 'recording.' + ext);
+  } else {
+    form.append('text', raw);
+  }
+
+  try {
+    const res = await fetch('/dump', { method: 'POST', body: form });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.detail || 'error');
+
+    textarea.value = '';
+    showToast('dumped and indexed ✓', 'success');
+    renderDumpResult(data);
+  } catch (err) {
+    resultEl.innerHTML = '';
+    showToast(err.message || 'something went wrong', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'dump it →';
+  }
+}
+
+function renderDumpResult(data) {
+  const e = data.extracted || {};
+  const el = document.getElementById('dump-result');
+
+  const constraints = (e.constraints || []).map(c => `<span class="tag constraint">${c}</span>`).join('');
+  const tools = (e.tools || []).map(t => `<span class="tag tool">${t}</span>`).join('');
+
+  const transcriptLine = data.transcribed && !document.getElementById('dump-text').value
+    ? `<p class="transcribed-text">"${data.transcribed}"</p>`
+    : '';
+
+  el.innerHTML = `
+    <div class="result-card">
+      <div class="rc-label">indexed successfully</div>
+      <p class="rc-summary">${e.summary || 'your dump has been saved'}</p>
+      <div class="tags">
+        ${e.domain ? `<span class="tag domain">${e.domain}</span>` : ''}
+        ${e.emotion ? `<span class="tag emotion">${e.emotion}</span>` : ''}
+        ${e.stage ? `<span class="tag stage">${e.stage}</span>` : ''}
+        ${constraints}
+        ${tools}
+      </div>
+      ${transcriptLine}
+    </div>`;
+}
+
+// ── FIND ───────────────────────────────────────────────────────────────────
+async function doFind() {
+  const query = document.getElementById('find-input').value.trim();
+  if (!query) { showToast('describe your situation first', 'error'); return; }
+
+  const btn = document.getElementById('btn-find');
+  const results = document.getElementById('find-results');
+  btn.disabled = true;
+  btn.textContent = 'searching...';
+  results.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+
+  try {
+    const res = await fetch('/find', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.detail || 'error');
+
+    renderMatches(data.matches || []);
+  } catch (err) {
+    results.innerHTML = '';
+    showToast(err.message || 'search failed', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'search';
+  }
+}
+
+function renderMatches(matches) {
+  const el = document.getElementById('find-results');
+  if (!matches.length) {
+    el.innerHTML = `
+      <div class="no-matches">
+        <div class="icon">🔍</div>
+        <p>no close matches yet.<br/>be more specific, or be the first to dump this kind of struggle.</p>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = matches.map(m => {
+    const score = m.relevance_score || 0;
+    const constraints = (m.constraints || []).map(c => `<span class="tag constraint">${c}</span>`).join('');
+    const tools = (m.tools || []).map(t => `<span class="tag tool">${t}</span>`).join('');
+    const solutionBlock = m.solution
+      ? `<div class="match-solution"><strong>what worked</strong>${m.solution}</div>`
+      : '';
+
+    return `
+      <div class="match-card">
+        <div class="match-relevance">
+          <div class="relevance-bar"><div class="relevance-fill" style="width:${score}%"></div></div>
+          <span class="relevance-num">${score}%</span>
+        </div>
+        <p class="match-summary">${m.summary || ''}</p>
+        ${m.why_relevant ? `<div class="match-why">${m.why_relevant}</div>` : ''}
+        ${solutionBlock}
+        <div class="tags">
+          ${m.domain ? `<span class="tag domain">${m.domain}</span>` : ''}
+          ${m.emotion ? `<span class="tag emotion">${m.emotion}</span>` : ''}
+          ${m.stage ? `<span class="tag stage">${m.stage}</span>` : ''}
+          ${constraints}
+          ${tools}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── FEED ───────────────────────────────────────────────────────────────────
+async function loadFeed() {
+  const el = document.getElementById('feed-list');
+  el.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+
+  try {
+    const res = await fetch('/feed');
+    const data = await res.json();
+    allFeedEntries = data.entries || [];
+    renderFeed();
+  } catch {
+    el.innerHTML = '<div class="empty"><p>could not load feed</p></div>';
+  }
+}
+
+function filterFeed(domain, chipEl) {
+  activeFeedFilter = domain;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  chipEl.classList.add('active');
+  renderFeed();
+}
+
+function renderFeed() {
+  const el = document.getElementById('feed-list');
+  const entries = activeFeedFilter === 'all'
+    ? allFeedEntries
+    : allFeedEntries.filter(e => e.domain === activeFeedFilter);
+
+  if (!entries.length) {
+    el.innerHTML = `
+      <div class="empty">
+        <div class="icon">📭</div>
+        <h3>nothing here yet</h3>
+        <p>be the first to dump something in this category.</p>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = entries.map(e => {
+    const initials = getUserId().slice(2, 4).toUpperCase();
+    const time = e.created_at ? formatTime(e.created_at) : '';
+    const tools = (e.tools || []).map(t => `<span class="tag tool">${t}</span>`).join('');
+
+    return `
+      <div class="feed-card">
+        <div class="feed-meta">
+          <div class="feed-avatar">${getInitials(e.id)}</div>
+          <span class="feed-user">anon_${e.id}</span>
+          <span class="feed-time">${time}</span>
+        </div>
+        <p class="feed-summary">${e.summary || ''}</p>
+        <div class="tags">
+          ${e.domain ? `<span class="tag domain">${e.domain}</span>` : ''}
+          ${e.emotion ? `<span class="tag emotion">${e.emotion}</span>` : ''}
+          ${e.stage ? `<span class="tag stage">${e.stage}</span>` : ''}
+          ${tools}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function getInitials(id) {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const n = typeof id === 'number' ? id : parseInt(id, 10) || 0;
+  return chars[n % chars.length] + chars[(n * 7 + 3) % chars.length];
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  try {
+    const d = new Date(ts + 'Z');
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  } catch { return ''; }
+}
+</script>
+</body>
+</html>
