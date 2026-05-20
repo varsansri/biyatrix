@@ -1,13 +1,9 @@
-import pickle
 import json
 from groq import Groq
-from embeddings import embed, cosine_similarity
 from database import get_all_entries
 from config import GROQ_API_KEY
 
 client = Groq(api_key=GROQ_API_KEY)
-
-RELEVANCE_THRESHOLD = 0.25
 
 
 def find_matches(query: str, top_k: int = 5) -> list:
@@ -15,61 +11,63 @@ def find_matches(query: str, top_k: int = 5) -> list:
     if not entries:
         return []
 
-    query_vec = embed(query)
+    candidates = [
+        {"id": e["id"], "summary": e.get("summary") or "", "problem": e.get("problem") or "",
+         "solution": e.get("solution"), "domain": e.get("domain"), "emotion": e.get("emotion"),
+         "stage": e.get("stage"), "constraints": e.get("constraints"), "tools": e.get("tools")}
+        for e in entries
+    ]
 
-    scored = []
-    for entry in entries:
-        if not entry.get("embedding"):
-            continue
-        vec = pickle.loads(entry["embedding"])
-        score = cosine_similarity(query_vec, vec)
-        if score >= RELEVANCE_THRESHOLD:
-            scored.append((score, entry))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-    top = scored[:top_k]
-
-    if not top:
-        return []
-
-    summaries = "\n".join(
-        f"{i+1}. [{e.get('domain','?')} | {e.get('emotion','?')}] {e.get('summary','')}"
-        for i, (_, e) in enumerate(top)
+    catalog = "\n".join(
+        f"{c['id']}. [{c['domain']}|{c['emotion']}] {c['summary']}"
+        for c in candidates
     )
-    resp = client.chat.completions.create(
+
+    rank_resp = client.chat.completions.create(
         model="llama-3.1-8b-instant",
         messages=[
             {
                 "role": "system",
-                "content": "For each matched entry, write ONE short sentence (max 20 words) explaining why it's relevant to the query. Reference a specific shared constraint or struggle. Return as JSON array of strings.",
+                "content": (
+                    "You rank entries by relevance to a query. "
+                    "Return JSON: {\"matches\": [{\"id\": <int>, \"score\": <0-100>, \"why\": \"<20 words max>\"}]} "
+                    "Top 5 most relevant only. Score 0 if not relevant."
+                ),
             },
-            {"role": "user", "content": f"Query: {query}\n\nMatches:\n{summaries}"},
+            {"role": "user", "content": f"Query: {query}\n\nEntries:\n{catalog}"},
         ],
-        temperature=0.3,
+        temperature=0.1,
         response_format={"type": "json_object"},
     )
 
     try:
-        raw = json.loads(resp.choices[0].message.content)
-        explanations = raw if isinstance(raw, list) else next(iter(raw.values()), [])
+        ranked = json.loads(rank_resp.choices[0].message.content).get("matches", [])
     except Exception:
-        explanations = []
+        return []
 
+    ranked = [r for r in ranked if r.get("score", 0) >= 25]
+    ranked.sort(key=lambda x: x.get("score", 0), reverse=True)
+    ranked = ranked[:top_k]
+
+    entry_map = {e["id"]: e for e in entries}
     results = []
-    for i, (score, entry) in enumerate(top):
+    for r in ranked:
+        e = entry_map.get(r["id"])
+        if not e:
+            continue
         results.append({
-            "id": entry["id"],
-            "summary": entry.get("summary"),
-            "problem": entry.get("problem"),
-            "solution": entry.get("solution"),
-            "domain": entry.get("domain"),
-            "emotion": entry.get("emotion"),
-            "stage": entry.get("stage"),
-            "tools": json.loads(entry.get("tools") or "[]"),
-            "constraints": json.loads(entry.get("constraints") or "[]"),
-            "created_at": entry.get("created_at"),
-            "relevance_score": round(score * 100),
-            "why_relevant": explanations[i] if i < len(explanations) else "",
+            "id": e["id"],
+            "summary": e.get("summary"),
+            "problem": e.get("problem"),
+            "solution": e.get("solution"),
+            "domain": e.get("domain"),
+            "emotion": e.get("emotion"),
+            "stage": e.get("stage"),
+            "tools": json.loads(e.get("tools") or "[]"),
+            "constraints": json.loads(e.get("constraints") or "[]"),
+            "created_at": e.get("created_at"),
+            "relevance_score": r.get("score", 0),
+            "why_relevant": r.get("why", ""),
         })
 
     return results

@@ -1,5 +1,4 @@
 import sqlite3
-import pickle
 import json
 from pathlib import Path
 
@@ -46,7 +45,7 @@ def save_entry(user_id: str, raw_input: str, extracted: dict, embedding):
         extracted.get("stage"),
         extracted.get("emotion"),
         extracted.get("summary"),
-        pickle.dumps(embedding),
+        embedding if isinstance(embedding, bytes) else str(embedding).encode(),
     ))
     conn.commit()
     conn.close()

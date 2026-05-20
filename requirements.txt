@@ -1,7 +1,6 @@
 fastapi
 uvicorn[standard]
 groq
-sentence-transformers
 numpy
 python-dotenv
 python-multipart
