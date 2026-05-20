@@ -2,9 +2,9 @@ import os
 import tempfile
 import json
 
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from groq import Groq
 
@@ -18,6 +18,10 @@ app = FastAPI(title="biyatrix")
 client = Groq(api_key=GROQ_API_KEY)
 
 init_db()
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(status_code=500, content={"detail": str(exc)})
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
