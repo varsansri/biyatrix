@@ -632,8 +632,8 @@ humans, powered by invisible AI logistics — is what this product is.
 
 ================================================================================
 END OF DOCUMENT
-Product name: TBD
-Founder: Yoyo
+Product name: biyatrix
+Founder: Srivarsan
 Stage: Ideation / Vision complete. MVP architecture defined.
 Next step: Build extraction pipeline prototype (Telegram bot, voice in → match out)
 ================================================================================
