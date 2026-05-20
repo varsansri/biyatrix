@@ -827,7 +827,7 @@ function updateRecordUI() {
 async function submitDump(text, audioBlob, mimeType) {
   const textarea = document.getElementById('dump-text');
   const submitBtn = document.getElementById('btn-submit');
-  const raw = text !== null ? text : textarea.value.trim();
+  const raw = text ?? textarea.value.trim();
   if (!raw && !audioBlob) { showToast('write something or record your voice', 'error'); return; }
   submitBtn.disabled = true; submitBtn.textContent = 'indexing...';
   const resultEl = document.getElementById('dump-result');
